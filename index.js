@@ -1,19 +1,23 @@
 const { shell } = require('execa')
 const path = require('path')
+const process = require('process')
+
+const compareTo = process.argv[2];
+const currentBranch = process.argv[3];
 
 shell(`git branch|grep "^*"|awk '{print $2}'`)
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
   const branch = stdout
-  console.log(branch)
-  return shell(`git diff --name-only origin/master...${branch} | grep .js$`)
+  console.log(`compare: git diff --name-only ${compareTo || 'origin/master'}...${currentBranch || branch} | grep .js$`)
+  return shell(`git diff --name-only ${compareTo}...${currentBranch || branch} | grep .js$`)
 })
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
   return stdout.replace(/\n/g, ' ')
 })
 .then(changedFiles =>
-  shell(`jest --listTests --findRelatedTests ${changedFiles}`)
+  shell(`jest --listTests --json --findRelatedTests ${changedFiles}`)
   .then(({ stdout, stderr }) => {
     if (stderr) throw new Error(stderr)
     return {

@@ -1,5 +1,18 @@
 {
+  "name": "jest-diff-coverage",
+  "version": "0.0.3",
+  "description": "Generate coverage for changes",
   "private": true,
+  "bin": {
+    "jest-diff-coverage": "./bin/jest-diff-coverage.js"
+  },
+  "engines": {
+    "node": ">= 6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/romaxa/jest-diff-coverage.git"
+  },
   "dependencies": {
     "execa": "^0.8.0"
   }

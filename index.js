@@ -2,16 +2,9 @@ const { shell } = require('execa')
 const path = require('path')
 const process = require('process')
 
+module.exports.run = () => {
 const compareTo = process.argv[2];
-const currentBranch = process.argv[3];
-
-shell(`git branch|grep "^*"|awk '{print $2}'`)
-.then(({ stdout, stderr }) => {
-  if (stderr) throw new Error(stderr)
-  const branch = stdout
-  console.log(`compare: git diff --name-only ${compareTo || 'origin/master'}...${currentBranch || branch} | grep .js$`)
-  return shell(`git diff --name-only ${compareTo}...${currentBranch || branch} | grep .js$`)
-})
+shell(`git diff --name-only ${compareTo || 'origin/master'} | grep .js$`)
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
   return stdout.replace(/\n/g, ' ')
@@ -47,3 +40,4 @@ shell(`git branch|grep "^*"|awk '{print $2}'`)
     process.exitCode = 1
   })
 })
+};

@@ -1,19 +1,16 @@
 const { shell } = require('execa')
 const path = require('path')
+const process = require('process')
 
-shell(`git branch|grep "^*"|awk '{print $2}'`)
-.then(({ stdout, stderr }) => {
-  if (stderr) throw new Error(stderr)
-  const branch = stdout
-  console.log(branch)
-  return shell(`git diff --name-only origin/master...${branch} | grep .js$`)
-})
+module.exports.run = () => {
+const compareTo = process.argv[2];
+shell(`git diff --name-only ${compareTo || 'origin/master'} | grep .js$`)
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
   return stdout.replace(/\n/g, ' ')
 })
 .then(changedFiles =>
-  shell(`jest --listTests --findRelatedTests ${changedFiles}`)
+  shell(`jest --listTests --json --findRelatedTests ${changedFiles}`)
   .then(({ stdout, stderr }) => {
     if (stderr) throw new Error(stderr)
     return {
@@ -43,3 +40,4 @@ shell(`git branch|grep "^*"|awk '{print $2}'`)
     process.exitCode = 1
   })
 })
+};

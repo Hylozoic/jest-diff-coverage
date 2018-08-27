@@ -1,42 +1,42 @@
 const { shell } = require('execa')
 const path = require('path')
+const argv = require('minimist')(process.argv.slice(2))
+
+const base = argv.base || 'origin/master'
+const runInBand = argv.runInBand ? '--runInBand' : ''
+
+let changedFiles, relatedTests
 
 shell(`git branch|grep "^*"|awk '{print $2}'`)
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
   const branch = stdout
-  console.log(branch)
-  return shell(`git diff --name-only origin/master...${branch} | grep .js$`)
+  return shell(`git diff --name-only ${base}...${branch} | grep .js$`)
 })
 .then(({ stdout, stderr }) => {
   if (stderr) throw new Error(stderr)
-  return stdout.replace(/\n/g, ' ')
+  changedFiles = stdout.split('\n')
 })
-.then(changedFiles =>
-  shell(`jest --listTests --findRelatedTests ${changedFiles}`)
-  .then(({ stdout, stderr }) => {
-    if (stderr) throw new Error(stderr)
-    return {
-      changedFiles: changedFiles.split(' '),
-      relatedTests: JSON.parse(stdout)
-    }
-  })
-)
-.then(ctx => {
-  if (ctx.relatedTests.length < 1) {
-    // wow, nothing to test!
+.then(() => shell(`jest --listTests --findRelatedTests ${changedFiles.join(' ')}`))
+.then(({ stdout, stderr }) => {
+  if (stderr) throw new Error(stderr)
+  relatedTests = stdout.split('\n')
+})
+.then(() => {
+  if (relatedTests.length < 1) {
+    console.log('Found no tests related to changed files.')
     return
   }
 
-  const collectCoverageFrom = ctx.changedFiles
+  const collectCoverageFrom = changedFiles
   .map(from => `--collectCoverageFrom "${from}"`)
   .join(' ')
 
-  const testFiles = ctx.relatedTests
+  const testFiles = relatedTests
   .map(testFile => path.relative(process.cwd(), testFile))
   .join(' ')
 
-  const coverageCommand = `jest --coverage ${collectCoverageFrom} ${testFiles}`
+  const coverageCommand = `jest ${runInBand} --silent --coverage ${collectCoverageFrom} ${testFiles}`
 
   return shell(coverageCommand, { stdio: 'inherit' })
   .catch(() => {

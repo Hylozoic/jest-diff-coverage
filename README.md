@@ -16,7 +16,7 @@ Clone it into a folder near your project folders, e.g.:
 └── jest-diff-coverage
 ```
 
-Install its one dependency with `npm install`.
+Install dependencies with  `npm install`.
 
 Run it from within a project folder:
 
@@ -25,5 +25,10 @@ cd HyloReactNative
 node ../jest-diff-coverage
 open coverage/lcov-report/index.html
 ```
+
+#### Options
+
+- `--runInBand`: Passes through to Jest.
+- `--base`: Specify base to compare against; defaults to `origin/master`.
 
 [1]: https://medium.com/@stipsan/best-kept-jest-secret-testing-only-changed-files-with-coverage-reports-3affc8b4d30f

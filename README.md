@@ -1,7 +1,7 @@
 Run Jest with coverage reports on only the files that were changed in the
 current branch.
 
-Basically the script from [this blog post](1) (thanks, Stian Didriksen!) with minor changes.
+Basically the script from [this blog post][1] (thanks, Stian Didriksen!) with minor changes.
 
 ### Suggested usage
 

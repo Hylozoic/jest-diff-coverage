@@ -1,3 +1,7 @@
+NEW: this is not needed anymore in new versions of Jest; just use [`--changedSince`](https://jestjs.io/docs/en/cli#changedsince)
+
+----
+
 Run Jest with coverage reports on only the files that were changed in the
 current branch.
 
